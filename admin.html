@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Simple Order — Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    body{background:#f5f7fb;color:#111827;font-family:Inter,system-ui,Segoe UI,Arial,sans-serif;}
+    header{background:#ffffff;border-bottom:1px solid #e5e7eb;position:sticky;top:0;z-index:10;}
+    .cardx{background:#fff;border:1px solid #e5e7eb;border-radius:14px;}
+    .shadow-soft{box-shadow:0 8px 24px rgba(16,24,40,.06);}
+    .status-badge{font-size:.75rem;}
+    .table thead th{white-space:nowrap;}
+  </style>
+</head>
+<body>
+<header class="py-3">
+  <div class="container d-flex align-items-center justify-content-between">
+    <h1 class="h5 m-0">🛠️ แอดมินออร์เดอร์</h1>
+    <div class="d-flex gap-2">
+      <a class="btn btn-outline-secondary btn-sm" href="index.html"><i class="bi bi-house"></i> หน้า User</a>
+      <button id="btnExport" class="btn btn-dark btn-sm"><i class="bi bi-filetype-csv"></i> Export CSV</button>
+    </div>
+  </div>
+</header>
+
+<main class="container my-4">
+  <div class="row g-3 mb-3">
+    <div class="col-md-3">
+      <div class="cardx shadow-soft p-3">
+        <div class="d-flex justify-content-between">
+          <div>
+            <div class="small text-muted">ออร์เดอร์ทั้งหมด</div>
+            <div id="sumAll" class="h4 m-0">0</div>
+          </div>
+          <i class="bi bi-list-task h3 m-0"></i>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="cardx shadow-soft p-3">
+        <div class="d-flex justify-content-between">
+          <div>
+            <div class="small text-muted">รอการยืนยัน</div>
+            <div id="sumPending" class="h4 m-0">0</div>
+          </div>
+          <i class="bi bi-hourglass-split h3 m-0"></i>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="cardx shadow-soft p-3">
+        <div class="d-flex justify-content-between">
+          <div>
+            <div class="small text-muted">กำลังจัดเตรียม/นำส่ง</div>
+            <div id="sumProcessing" class="h4 m-0">0</div>
+          </div>
+          <i class="bi bi-truck h3 m-0"></i>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="cardx shadow-soft p-3">
+        <div class="d-flex justify-content-between">
+          <div>
+            <div class="small text-muted">จัดส่งเสร็จสิ้น</div>
+            <div id="sumDone" class="h4 m-0">0</div>
+          </div>
+          <i class="bi bi-check2-circle h3 m-0"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cardx shadow-soft p-3">
+    <div class="d-flex flex-wrap gap-2 align-items-end mb-3">
+      <div>
+        <label class="form-label small m-0">ค้นหา</label>
+        <input id="searchBox" class="form-control form-control-sm" placeholder="ชื่อลูกค้า/Order ID/สินค้า..." />
+      </div>
+      <div>
+        <label class="form-label small m-0">สถานะ</label>
+        <select id="filterStatus" class="form-select form-select-sm">
+          <option value="">ทั้งหมด</option>
+          <option value="รอการยืนยันออร์เดอร์">รอการยืนยันออร์เดอร์</option>
+          <option value="ยืนยันออร์เดอร์กำลังจัดเตรียม">ยืนยันออร์เดอร์กำลังจัดเตรียม</option>
+          <option value="กำลังนำส่งสินค้า">กำลังนำส่งสินค้า</option>
+          <option value="เสร็จสิ้นการจัดส่ง">เสร็จสิ้นการจัดส่ง</option>
+        </select>
+      </div>
+      <div class="ms-auto small text-muted">อัปเดตอัตโนมัติทุก 5 วินาที</div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>ลูกค้า</th>
+            <th>ที่อยู่</th>
+            <th>สินค้า (ชิ้น)</th>
+            <th>รวม (฿)</th>
+            <th>สถานะ</th>
+            <th>อัปเดตเมื่อ</th>
+            <th>จัดการ</th>
+          </tr>
+        </thead>
+        <tbody id="orderTbody"></tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">แก้ไขออร์เดอร์ <span id="editOrderId" class="text-muted"></span></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div id="editItems" class="vstack gap-2"></div>
+      </div>
+      <div class="modal-footer">
+        <button id="btnSaveEdit" class="btn btn-primary">บันทึก</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  window.APP_CONFIG = {
+    BASE_URL: "https://script.google.com/macros/s/AKfycbwYtRYwmxG_bLiIqn2zoBSTzGRBwBl_m3a8161eoUBVURcgfnhovycYPdyZhBqvpyMW_g/exec", // 👈 ใส่ URL ของ Google Apps Script Web App หลังจาก deploy
+    ADMIN_PIN: "1234",
+    POLL_INTERVAL_MS: 5000
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Simple Order — User</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    body{background:#f5f7fb;color:#111827;font-family:Inter,system-ui,Segoe UI,Arial,sans-serif;}
+    header{background:#ffffff;border-bottom:1px solid #e5e7eb;position:sticky;top:0;z-index:10;}
+    .product-card{background:#ffffff;border:1px solid #e5e7eb;border-radius:14px;padding:16px;}
+    .shadow-soft{box-shadow:0 8px 24px rgba(16,24,40,.06);}
+    .badge-stock{background:#eef2ff;color:#3730a3;}
+    .cart{background:#ffffff;border:1px solid #e5e7eb;border-radius:14px;padding:16px;}
+    .floating-admin{position:fixed;right:16px;bottom:16px;}
+  </style>
+</head>
+<body>
+<header class="py-3">
+  <div class="container d-flex align-items-center justify-content-between">
+    <h1 class="h5 m-0">🧺 ระบบสั่งสินค้า (User)</h1>
+    <div class="d-flex gap-2">
+      <button class="btn btn-outline-secondary btn-sm" id="btnCheckStatus">
+        <i class="bi bi-clipboard2-check"></i> ตรวจสอบสถานะ
+      </button>
+      <a class="btn btn-dark btn-sm" href="admin.html"><i class="bi bi-shield-lock"></i> Admin</a>
+    </div>
+  </div>
+</header>
+
+<main class="container my-4">
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <div class="d-flex align-items-center justify-content-between mb-2">
+        <h2 class="h6 m-0">รายการสินค้า</h2>
+        <button class="btn btn-outline-primary btn-sm" id="btnRefresh"><i class="bi bi-arrow-clockwise"></i> รีเฟรช</button>
+      </div>
+      <div id="productList" class="row g-3"></div>
+      <div class="text-muted small mt-2">ข้อมูลสินค้าถูกซิงก์จาก Google Sheet แบบอัปเดตอัตโนมัติทุก 10 วินาที</div>
+    </div>
+    <div class="col-lg-4">
+      <div class="cart shadow-soft">
+        <h2 class="h6">ตะกร้า</h2>
+        <div id="cartItems" class="vstack gap-2"></div>
+        <hr/>
+        <div class="mb-2">
+          <label class="form-label">ชื่อผู้สั่ง</label>
+          <input id="customerName" class="form-control form-control-sm" placeholder="ชื่อผู้สั่ง" />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">สถานที่ตั้ง/ที่อยู่จัดส่ง</label>
+          <textarea id="customerLocation" class="form-control form-control-sm" rows="2" placeholder="เช่น ร้าน ABC, อ.เมือง..."></textarea>
+        </div>
+        <div class="d-flex justify-content-between">
+          <span class="fw-semibold">รวมทั้งหมด</span>
+          <span id="totalPrice" class="fw-bold">฿0</span>
+        </div>
+        <button id="btnPlaceOrder" class="btn btn-primary w-100 mt-2">
+          <i class="bi bi-bag-check"></i> ยืนยันสั่งซื้อ
+        </button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Status Modal -->
+<div class="modal fade" id="statusModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">ตรวจสอบสถานะคำสั่งซื้อ</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-2">
+          <label class="form-label">กรอกเลข Order ID</label>
+          <input id="statusOrderId" class="form-control" placeholder="เช่น ORD-20251017-0001" />
+        </div>
+        <div id="statusResult" class="mt-2 small text-muted"></div>
+      </div>
+      <div class="modal-footer">
+        <button id="btnFindStatus" class="btn btn-primary">ค้นหา</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  window.APP_CONFIG = {
+    BASE_URL: "https://script.google.com/macros/s/AKfycbwYtRYwmxG_bLiIqn2zoBSTzGRBwBl_m3a8161eoUBVURcgfnhovycYPdyZhBqvpyMW_g/exec", // 👈 ใส่ URL ของ Google Apps Script Web App หลังจาก deploy
+    POLL_INTERVAL_MS: 10000
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>
